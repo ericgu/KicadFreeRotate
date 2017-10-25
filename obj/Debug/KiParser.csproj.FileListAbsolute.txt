@@ -1,0 +1,6 @@
+c:\KiParser\bin\Debug\KiParser.exe.config
+c:\KiParser\bin\Debug\KiParser.exe
+c:\KiParser\bin\Debug\KiParser.pdb
+c:\KiParser\obj\Debug\KiParser.csprojResolveAssemblyReference.cache
+c:\KiParser\obj\Debug\KiParser.exe
+c:\KiParser\obj\Debug\KiParser.pdb

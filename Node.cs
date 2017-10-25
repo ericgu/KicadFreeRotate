@@ -163,5 +163,15 @@ namespace KiParser
                 writer.WriteLine(indent + ")");
             }
         }
+
+        public void TraverseAll(Action<Node> process)
+        {
+            process(this);
+
+            foreach (Node child in Children)
+            {
+                child.TraverseAll(process);
+            }
+        }
     }
 }

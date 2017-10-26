@@ -53,5 +53,26 @@ namespace KiParser
         {
             Bounds.UpdateBounds(bounds, node);
         }
+
+        public void UpdateBounds(double X, double Y)
+        {
+            if (X < XMin)
+            {
+                XMin = X;
+            }
+            else if (Y < YMin)
+            {
+                YMin = Y;
+            }
+
+            if (X > XMax)
+            {
+                XMax = X;
+            }
+            else if (Y > YMax)
+            {
+                YMax = Y;
+            }
+        }
     }
 }

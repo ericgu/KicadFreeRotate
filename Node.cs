@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace KiParser
 {
     public class Node
     {
         public string Name { get; set; }
-        public virtual string Text { get; set; }
 
         public List<Node> Children { get; private set; }
 
@@ -25,79 +25,64 @@ namespace KiParser
                 throw new Exception("Node must start with '('");
             }
 
-            Text = "";
-
             input.Next(); // Skip opening '('
 
             ParseName(input);
             //Console.WriteLine("Name: " + Name);
-
-            while (Char.IsWhiteSpace(input.CurrentChar))
-            {
-                input.Next(); // skip spac
-            }
 
             ParseBody(input);
         }
 
         private void ParseBody(Input input)
         {
+            while (!input.EndOfContent)
+            {
+                string text = ParseUntilDelimiter(input, '(', ')');
+                NodeText nodeText = new NodeText();
+                nodeText.Text = text;
+                Children.Add(nodeText);
+
+                if (input.CurrentChar == '(')
+                {
+                    Children.Add(CreateNode(input, this));
+                }
+                else if (input.CurrentChar == ')')
+                {
+                    input.Next();
+
+                    return;
+                }
+            }
+        }
+
+        private string ParseUntilDelimiter(Input input, params char[] delimiters)
+        {
             string text = String.Empty;
 
             bool inQuotes = false;
             while (!input.EndOfContent)
             {
-                if (inQuotes)
+                if (!inQuotes)
                 {
-                    text += input.CurrentChar;
-
-                    if (input.CurrentChar == '"')
+                    foreach (char delimiter in delimiters)
                     {
-                        inQuotes = false;
-                    }
-                    input.Next();
-                }
-                else
-                {
-                    if (input.CurrentChar == '(')
-                    {
-                        if (text.Length != 0)
+                        if (input.CurrentChar == delimiter)
                         {
-                            NodeText nodeText = new NodeText();
-                            nodeText.Text = text;
-                            Children.Add(nodeText);
-                            text = String.Empty;
+                            return text;
                         }
-                        Children.Add(CreateNode(input, this));
-                    }
-                    else if (input.CurrentChar == ')')
-                    {
-                        input.Next();
-                        if (text.Length != 0)
-                        {
-                            NodeText nodeText = new NodeText();
-                            nodeText.Text = text;
-                            Children.Add(nodeText);
-                            text = String.Empty;
-                        }
-                        CleanupText();
-
-                        return;
-                    }
-                    else
-                    {
-                        if (input.CurrentChar == '"')
-                        {
-                            inQuotes = true;
-                        }
-
-                        text += input.CurrentChar;
-                        input.Next();
                     }
                 }
+
+                if (input.CurrentChar == '"')
+                {
+                    inQuotes = !inQuotes;
+                }
+
+                text += input.CurrentChar;
+                input.Next();
             }
 
-            FinishParse();
+            return text;
         }
 
         public static Node CreateNode(Input input, Node parent)
@@ -140,63 +125,63 @@ namespace KiParser
 
         private void ParseName(Input input)
         {
-// extract and save node name
+                // extract and save node name
             while (!input.EndOfContent && input.CurrentChar != ' ')
             {
-                if (!Char.IsWhiteSpace(input.CurrentChar))
-                {
-                    Name += input.CurrentChar;
-                }
+                Name += input.CurrentChar;
                 input.Next();
             }
         }
 
-        private void CleanupText()
-        {
-            string cleaned = String.Empty;
-
-            char lastChar = 'x';
-
-            foreach (char s in Text)
-            {
-                if (s != '\n' && 
-                    s != '\r' && 
-                    (s != ' ' || lastChar != ' '))
-                {
-                    cleaned += s;
-                    lastChar = s;
-                }
-            }
-
-            Text = cleaned;
-        }
 
         public override string ToString()
         {
             return Name + "[" + Children.Count + "]";
         }
 
+        public virtual string NodeStartText
+        {
+            get { return "(" + Name; }
+        }
+
+        public virtual string NodeEndText
+        {
+            get { return ")"; }
+        }
+
+        private NodeText TextChild
+        {
+            get { return (NodeText) Children.First(); }
+        }
+
+        public double V1
+        {
+            get { return TextChild.GetTextPartAsDouble(1); }
+            set { TextChild.SetTextPartAsDouble(1, value); }
+        }
+
+        public double V2
+        {
+            get { return TextChild.GetTextPartAsDouble(2); }
+            set { TextChild.SetTextPartAsDouble(2, value); }
+        }
+
+        public double V3
+        {
+            get { return TextChild.GetTextPartAsDouble(3); }
+            set { TextChild.SetTextPartAsDouble(3, value); }
+        }
+
         public void Save(StreamWriter writer, int indentLevel)
         {
-            string indent = new String(' ', indentLevel * 2);
+            writer.Write(NodeStartText);
 
-            string part = indent + "(" + Name + " " + Text;
-
-            writer.Write(part);
-
-            if (Children.Count == 0)
+            foreach (Node child in Children)
             {
-                writer.WriteLine(")");
+                child.Save(writer, indentLevel + 1);
             }
-            else
-            {
-                writer.WriteLine();
-                foreach (Node child in Children)
-                {
-                    child.Save(writer, indentLevel + 1);
-                }
-                writer.WriteLine(indent + ")");
-            }
+            writer.Write(NodeEndText);
+
         }
 
         public void TraverseAll<T>(Action<Node, T> process, Func<Node, bool> selector, T userData)

@@ -10,8 +10,15 @@ namespace KiParser
     {
         static void Main(string[] args)
         {
+#if home
+            var inputFile = @"D:\data\Electronics\Snowflake\broken\upper\snowflake.kicad_pcb";
+            var outputFile = @"D:\data\Electronics\Snowflake\broken\upper\snowflake_s.kicad_pcb";
+#else
+            var inputFile = @"c:\kiparser\snowflake.kicad_pcb";
+            var outputFile = @"c:\kiparser\snowflake_s.kicad_pcb";
+#endif
 
-            string contents = File.ReadAllText(@"D:\data\Electronics\Snowflake\broken\upper\snowflake.kicad_pcb");
+            string contents = File.ReadAllText(inputFile);
 
             Node node = Node.CreateNode(new Input(contents), null);
 
@@ -22,7 +29,7 @@ namespace KiParser
 
             node.TraverseAll(RotateNode, SelectNode, rotator);
 
-            using (StreamWriter writer = File.CreateText(@"D:\data\Electronics\Snowflake\broken\upper\snowflake_s.kicad_pcb"))
+            using (StreamWriter writer = File.CreateText(outputFile))
             {
                 int indentLevel = 0;
                 node.Save(writer, indentLevel);
@@ -40,7 +47,7 @@ namespace KiParser
 
             if (nodeAt != null)
             {
-                nodeAt.R = nodeAt.R + rotator.RotationAngle;
+                nodeAt.V3 = nodeAt.V3 + rotator.RotationAngle;
             }
         }
     }

@@ -4,7 +4,7 @@ namespace KiParser
 {
     public class NodeFpText: Node
     {
-
+#if fred
         public double X
         {
             get
@@ -23,5 +23,6 @@ namespace KiParser
 
             }
         }
+#endif
     }
 }

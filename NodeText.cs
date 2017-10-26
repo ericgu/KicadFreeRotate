@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KiParser
 {
@@ -24,19 +25,31 @@ namespace KiParser
 
         public string GetTextPart(int index)
         {
-            return Text.Split(' ')[index];
+            var parts = Text.Split(' ');
+            if (parts.Length - 1 < index)
+            {
+                return null;
+            }
+
+            return parts[index];
         }
 
         public void SetTextPart(int index, string value)
         {
-            var parts = Text.Split(' ');
+            var parts = Text.Split(' ').ToList();
+
+            while (parts.Count < index + 1)
+            {
+                parts.Add("");
+            }
             parts[index] = value;
             Text = String.Join(" ", parts);
         }
 
         public double GetTextPartAsDouble(int index)
         {
-            return Double.Parse(GetTextPart(index));
+            var textPart = GetTextPart(index);
+            return textPart != null ? Double.Parse(textPart) : 0.0;
         }
 
         public void SetTextPartAsDouble(int index, double value)

@@ -200,8 +200,5 @@ namespace KiParser
         public virtual void UpdateBounds(Bounds bounds)
         {
         }
-
-        public virtual void FinishParse()
-        { }
     }
 }

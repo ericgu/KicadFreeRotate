@@ -7,9 +7,16 @@ namespace KiParser
     public class Node
     {
         public string Name { get; set; }
-        public string Text { get; set; }
+        public virtual string Text { get; set; }
 
         public List<Node> Children { get; private set; }
+
+        public Node Parent { get; private set; }
+
+        public Node()
+        {
+            Children = new List<Node>();
+        }
 
         public void Parse(Input input)
         {
@@ -18,7 +25,6 @@ namespace KiParser
                 throw new Exception("Node must start with '('");
             }
 
-            Children = new List<Node>();
             Text = "";
 
             input.Next(); // Skip opening '('
@@ -36,12 +42,14 @@ namespace KiParser
 
         private void ParseBody(Input input)
         {
+            string text = String.Empty;
+
             bool inQuotes = false;
             while (!input.EndOfContent)
             {
                 if (inQuotes)
                 {
-                    Text += input.CurrentChar;
+                    text += input.CurrentChar;
 
                     if (input.CurrentChar == '"')
                     {
@@ -53,13 +61,27 @@ namespace KiParser
                 {
                     if (input.CurrentChar == '(')
                     {
-                        Children.Add(CreateNode(input));
+                        if (text.Length != 0)
+                        {
+                            NodeText nodeText = new NodeText();
+                            nodeText.Text = text;
+                            Children.Add(nodeText);
+                            text = String.Empty;
+                        }
+                        Children.Add(CreateNode(input, this));
                     }
                     else if (input.CurrentChar == ')')
                     {
                         input.Next();
+                        if (text.Length != 0)
+                        {
+                            NodeText nodeText = new NodeText();
+                            nodeText.Text = text;
+                            Children.Add(nodeText);
+                            text = String.Empty;
+                        }
                         CleanupText();
-                        //Console.WriteLine("Text: " + Text);
+
                         return;
                     }
                     else
@@ -69,16 +91,16 @@ namespace KiParser
                             inQuotes = true;
                         }
 
-                        Text += input.CurrentChar;
+                        text += input.CurrentChar;
                         input.Next();
                     }
                 }
             }
 
-            Console.WriteLine("Text: " + Text);
+            FinishParse();
         }
 
-        public static Node CreateNode(Input input)
+        public static Node CreateNode(Input input, Node parent)
         {
             Node node;
             if (input.StartsWith("(at"))
@@ -87,11 +109,23 @@ namespace KiParser
             }
             else if (input.StartsWith("(start"))
             {
-                node = new NodeAt();
+                node = new NodeStart();
             }
-            else if (input.StartsWith("(start"))
+            else if (input.StartsWith("(end"))
             {
-                node = new NodeAt();
+                node = new NodeEnd();
+            }
+            else if (input.StartsWith("(fp_text"))
+            {
+                node = new NodeFpText();
+            }
+            else if (input.StartsWith("(fp_line"))
+            {
+                node = new NodeFpLine();
+            }
+            else if (input.StartsWith("(pad"))
+            {
+                node = new NodePad();
             }
             else
             {
@@ -99,6 +133,7 @@ namespace KiParser
             }
 
             node.Parse(input);
+            node.Parent = parent;
 
             return node;
         }
@@ -164,14 +199,24 @@ namespace KiParser
             }
         }
 
-        public void TraverseAll(Action<Node> process)
+        public void TraverseAll<T>(Action<Node, T> process, Func<Node, bool> selector, T userData)
         {
-            process(this);
-
-            foreach (Node child in Children)
+            if (selector(this))
             {
-                child.TraverseAll(process);
+                process(this, userData);
+
+                foreach (Node child in Children)
+                {
+                    child.TraverseAll(process, selector, userData);
+                }
             }
         }
+
+        public virtual void UpdateBounds(Bounds bounds)
+        {
+        }
+
+        public virtual void FinishParse()
+        { }
     }
 }

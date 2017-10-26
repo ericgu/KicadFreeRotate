@@ -4,3 +4,9 @@ c:\KiParser\bin\Debug\KiParser.pdb
 c:\KiParser\obj\Debug\KiParser.csprojResolveAssemblyReference.cache
 c:\KiParser\obj\Debug\KiParser.exe
 c:\KiParser\obj\Debug\KiParser.pdb
+D:\data\Electronics\KicadFreeRotate\bin\Debug\KiParser.exe.config
+D:\data\Electronics\KicadFreeRotate\obj\Debug\KiParser.exe
+D:\data\Electronics\KicadFreeRotate\obj\Debug\KiParser.pdb
+D:\data\Electronics\KicadFreeRotate\obj\Debug\KiParser.csprojResolveAssemblyReference.cache
+D:\data\Electronics\KicadFreeRotate\bin\Debug\KiParser.exe
+D:\data\Electronics\KicadFreeRotate\bin\Debug\KiParser.pdb

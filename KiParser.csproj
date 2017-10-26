@@ -43,7 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NodeText.cs" />
+    <Compile Include="Rotator.cs" />
+    <Compile Include="Bounds.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="NodePad.cs" />
+    <Compile Include="NodeFpText.cs" />
+    <Compile Include="NodeFpLine.cs" />
     <Compile Include="NodeStart.cs" />
     <Compile Include="NoteEnd.cs" />
     <Compile Include="NodeAt.cs" />

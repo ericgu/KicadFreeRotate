@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,60 +6,41 @@ using System.Threading.Tasks;
 
 namespace KiParser
 {
-    struct Point
-    {
-        public double X;
-        public double Y;
-    }
-
     class Program
     {
         static void Main(string[] args)
         {
 
-            string contents = File.ReadAllText(@"C:\KiParser\snowflake.kicad_pcb");
+            string contents = File.ReadAllText(@"D:\data\Electronics\Snowflake\broken\upper\snowflake.kicad_pcb");
 
-            Node node = Node.CreateNode(new Input(contents));
+            Node node = Node.CreateNode(new Input(contents), null);
 
-            min.X = Double.MaxValue;
-            min.Y = Double.MaxValue;
-            max.X = -Double.MaxValue;
-            max.Y = -Double.MaxValue;
-            node.TraverseAll(Process);
+            var bounds = Bounds.GetBounds(node);
+            double x = bounds.XMax;
 
-            using (StreamWriter writer = File.CreateText(@"C:\KiParser\snowflake_s.kicad_pcb"))
+            Rotator rotator = new Rotator(bounds, 38);
+
+            node.TraverseAll(RotateNode, SelectNode, rotator);
+
+            using (StreamWriter writer = File.CreateText(@"D:\data\Electronics\Snowflake\broken\upper\snowflake_s.kicad_pcb"))
             {
                 int indentLevel = 0;
                 node.Save(writer, indentLevel);
             }
         }
 
-        static private Point min;
-        static private Point max;
+        private static bool SelectNode(Node node)
+        {
+            return true;
+        }
 
-        static void Process(Node node)
+        private static void RotateNode(Node node, Rotator rotator)
         {
             NodeAt nodeAt = node as NodeAt;
 
             if (nodeAt != null)
             {
-                if (nodeAt.X < min.X)
-                {
-                    min.X = nodeAt.X;
-                }
-                if (nodeAt.Y < min.Y)
-                {
-                    min.Y = nodeAt.Y;
-                }
-
-                if (nodeAt.X > max.X)
-                {
-                    max.X = nodeAt.X;
-                }
-                if (nodeAt.Y > max.Y)
-                {
-                    max.Y = nodeAt.Y;
-                }
+                nodeAt.R = nodeAt.R + rotator.RotationAngle;
             }
         }
     }

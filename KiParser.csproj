@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NodeVia.cs" />
     <Compile Include="NodeText.cs" />
     <Compile Include="Rotator.cs" />
     <Compile Include="Bounds.cs" />

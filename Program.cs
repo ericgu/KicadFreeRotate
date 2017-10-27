@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿#define home
+
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace KiParser
 {
@@ -25,9 +28,10 @@ namespace KiParser
             var bounds = Bounds.GetBounds(node);
             double x = bounds.XMax;
 
-            Rotator rotator = new Rotator(bounds, 38);
+            Rotator rotator = new Rotator(bounds, 60);
 
-            node.TraverseAll(RotateNode, SelectNode, rotator);
+            rotator.RotateParts(node);
+            rotator.RotatePoints(node);
 
             using (StreamWriter writer = File.CreateText(outputFile))
             {
@@ -35,20 +39,7 @@ namespace KiParser
                 node.Save(writer, indentLevel);
             }
         }
-
-        private static bool SelectNode(Node node)
-        {
-            return true;
-        }
-
-        private static void RotateNode(Node node, Rotator rotator)
-        {
-            NodeAt nodeAt = node as NodeAt;
-
-            if (nodeAt != null)
-            {
-                nodeAt.V3 = nodeAt.V3 + rotator.RotationAngle;
-            }
-        }
     }
 }
+
+

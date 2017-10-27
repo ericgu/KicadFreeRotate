@@ -112,6 +112,10 @@ namespace KiParser
             {
                 node = new NodePad();
             }
+            else if (input.StartsWith("(via"))
+            {
+                node = new NodeVia();
+            }
             else
             {
                 node = new Node();
@@ -149,7 +153,7 @@ namespace KiParser
             get { return ")"; }
         }
 
-        private NodeText TextChild
+        protected NodeText TextChild
         {
             get { return (NodeText) Children.First(); }
         }

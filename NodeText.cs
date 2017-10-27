@@ -23,6 +23,11 @@ namespace KiParser
             get { return ""; }
         }
 
+        public int PartCount
+        {
+            get { return Text.Split(' ').Length - 1; }
+        }
+
         public string GetTextPart(int index)
         {
             var parts = Text.Split(' ');

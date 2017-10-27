@@ -9,5 +9,10 @@ namespace KiParser
         {
             bounds.UpdateBounds(V1, V2);
         }
+
+        public void Rotate(Rotator rotator)
+        {
+            V3 = V3 + rotator.RotationAngle;
+        }
     }
 }
